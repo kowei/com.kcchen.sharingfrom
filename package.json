@@ -1,0 +1,25 @@
+{
+    "private": true,
+    "name": "com.kcchen.sharingfrom",
+    "cordova_name": "SharingFrom",
+    "version": "0.4.4",
+    "description": "Sharing From for Cordova",
+    "types": "./types/index.d.ts",
+    "cordova": {
+        "id": "com.kcchen.sharingfrom",
+        "platforms": [
+            "android",
+            "ios"
+        ]
+    },
+    "main": "./www/SharingFrom.js",
+    "keywords": [
+        "cordova",
+        "sharing",
+        "ecosystem:cordova",
+        "cordova-android",
+        "cordova-ios"
+    ],
+    "author": "KC Chen (kowei.chen@gmail.com)",
+    "license": "MIT"
+}

@@ -1,0 +1,13 @@
+{
+    "team": "74E7GP4699",
+    "extension": {
+        "name": "SharingFrom",
+        "Debug": {
+            "PROVISIONING_PROFILE_SPECIFIER": "\"PenPal Development SharingFrom\""
+        },
+        "Release": {
+            "CODE_SIGN_IDENTITY": "\"iPhone Distribution: KYE SYSTEMS CORP.\"",
+            "PROVISIONING_PROFILE_SPECIFIER": "\"PenPal Distribution SharingFrom\""
+        }
+    }
+}

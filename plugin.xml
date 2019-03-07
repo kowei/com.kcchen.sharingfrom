@@ -1,0 +1,305 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+    id : Plugin識別碼 (for add/remove)
+    version : Plugin版本
+    0.0.x app extension enable
+    0.1.x manual sign for debug and release
+    0.1.3 add PathUtil
+    0.1.4 remove ExportOptions.plist
+    0.2.0 add/remove complete
+    0.2.1 add app-group and change signing for app-extension
+    0.2.2 fix fatal error with plugin loading
+    0.2.3 fix hook cross plugin, install/uninstall for specific plugin, add/remove for all plugin
+    0.2.4 add types for intentData
+    0.2.5 fix ios onNewIntent string error
+    0.2.6 add clearIntent API
+    0.2.7 cancel "remove development team" after uninstall
+    0.2.8 add clearIntent API to iOS
+    0.2.9 add after_prepare hook for iOS
+    0.2.10 fix intentData types for typescript
+    0.2.11 fix intent incoming and clear not just set all and remove all, but add to existing and remove from existing
+    0.2.12 add error handling if no uri
+    0.2.13 add singleInstance support for better sharing
+           fix restore hook error
+    0.2.14 disable iOS
+    0.2.15 add iOS back
+    0.3.0 - 1. rewrite javascript interface
+          - 2. fix sharing image from chrome on android 6
+          - 3. ios using custom scheme url passing shared data (testing)
+    0.3.1 fix ios crash when open external link
+    0.3.2 fix ios share extension group id
+    0.3.3 add rfc822 for registring sending email(wechat)
+    0.3.4 modify ios Info.plist config, and remove color selection in share extension
+    0.3.5 fix android sdk 22 (android 5.1) file provider issue
+    0.3.6 fix ios mimeType sharing
+    0.3.7 add android dropbox support -> action=VIEW uri=intent.getData()
+    0.3.8 add android dropbox support PDF
+    0.3.9 fix ios share extension from what's app, now support PDF,GIF, Image from what's app
+    0.3.10 fix iOS swift new syntax
+    0.3.11 reverse 0.3.10, due to it is not working
+    0.3.12 add iOS unscribe after plugin terminate
+    0.3.13 fix iOS 11 sharing error (data not send)
+    0.3.14 fix iOS not shared when APP killed
+    0.3.15 update for cordova-ios 4.5.2
+    0.3.16 downgrade to cordova-ios 4.3.1
+    0.4.1 update for cordova-ios 4.5.4, move app-entension hook to global (after_platform_add)
+    0.4.2 remove signing from this plugin, move to system hook
+    0.4.3 fix hook
+    0.4.4 fix hook
+-->
+<plugin id="com.kcchen.sharingfrom" version="0.4.4" 
+    xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- metadata
+        name : Plugin名稱,其文本內容包含外掛程式的名稱人類可讀的名稱
+        description : Plugin描述
+        keywords: 元素的文本內容包含以逗號分隔的關鍵字來描述該外掛程式
+        license : Plugin授權模式
+        author: 外掛程式作者姓名。元素的文本內容包含外掛程式作者的姓名
+        engines: 指定版本的此外掛程式支援的基於 Apache Cordova 的框架
+            這裡是< engine >標記支援預設引擎的清單:
+            cordova
+            cordova-plugman
+            cordova-amazon-fireos
+            cordova-android
+            cordova-ios
+            cordova-blackberry10
+            cordova-wp8
+            cordova-windows8
+            android-sdk // returns the highest Android api level installed
+            apple-xcode // returns the xcode version
+            apple-ios // returns the highest iOS version installed
+            apple-osx // returns the OSX version
+            blackberry-ndk // returns the native blackberry SDK version
+        asset: 一個或多個元素列出 檔 或 目錄 複寫到 Cordova app www 目錄 (platform/[android|iOS]/assets/www)
+    -->
+    <name>SharingFrom</name>
+    <description>Sharing From for Cordova</description>
+    <keywords>cordova,sharing</keywords>
+    <license>MIT</license>
+    <author>KC Chen (kowei.chen@gmail.com)</author>
+    <engines>
+        <engine name="cordova" version=">=3.0.0" />
+    </engines>
+    <!-- asset src="types/index.d.ts" target="types/kcchen-plugin-sharingfrom/index.d.ts" / -->
+    <!-- javascript
+        js-module : 各個JavaScript模組的設定項目
+            name:   Also for this example, with a plugin id of com.kcchen.sharingfrom,
+                    the module name will be com.kcchen.sharingfrom.SharingFrom
+            <runs/><clobbers/> Allowed within <js-module> element. Used to specify the
+                        namespace under window object where module.exports gets
+                        inserted. You can have as many <clobbers> as you like.
+                        Any object not available on window is created.
+            <merges/>
+     -->
+    <js-module name="SharingFrom" src="www/SharingFrom.js">
+        <merges target="SharingFrom" />
+    </js-module>
+    <!--
+        before_platform_add	cordova platform add	To be executed before and after adding a platform.
+        after_platform_add
+
+        before_platform_rm	cordova platform rm	    To be executed before and after removing a platform.
+        after_platform_rm
+
+        before_platform_ls	cordova platform ls	    To be executed before and after listing the installed and available platforms.
+        after_platform_ls
+
+        before_prepare	    cordova prepare
+                            cordova platform add
+                            cordova build
+                            cordova run	            To be executed before and after preparing your application.
+        after_prepare
+
+        before_compile	    cordova compile
+        cordova build	To be executed before and after compiling your application.
+        after_compile
+        before_deploy	cordova emulate
+        cordova run	To be executed before deploying your application.
+        before_build	cordova build	To be executed before and after building your application.
+        after_build
+        before_emulate	cordova emulate	To be executed before and after emulating your application.
+        after_emulate
+        before_run	cordova run	To be executed before and after running your application.
+        after_run
+        before_serve	cordova serve	To be executed before and after serving your application.
+        after_serve
+        before_clean	cordova clean	To be executed before and after cleaning your application.
+        after_clean
+        pre_package	N/A	Applicable to Windows 8 and Windows Phone only. This hook is deprecated.
+        before_plugin_add	cordova plugin add	To be executed before and after adding a plugin.
+        after_plugin_add
+        before_plugin_rm	cordova plugin rm	To be executed before and after removing a plugin.
+        after_plugin_rm
+        before_plugin_ls	cordova plugin ls	To be executed before and after listing the plugins in your application.
+        after_plugin_ls
+        before_plugin_search	cordova plugin search	To be executed before and after a plugin search.
+        after_plugin_search
+        before_plugin_install	cordova plugin add	To be executed before and after installing a plugin (to the platforms). Plugin hooks in plugin.xml are executed for a plugin being installed only
+        after_plugin_install
+
+        before_plugin_uninstall	cordova plugin rm	To be executed before uninstalling a plugin (from the platforms).Plugin hooks in plugin.xml are executed for a plugin being installed only
+    -->
+    <!-- hook type="after_plugin_install" src="scripts/afterPluginInstall.js" / -->
+    <!-- android
+        platform : 各個執行平台的設定項目
+    -->
+    <platform name="android">
+        <!-- config
+            Android platform的設定區塊的config-file設定區塊比較特別，這個設定區塊是用來，
+            定義提供給Web頁面調用的類別。在這其中feature name代表的是這個Plugin提供給Web頁
+            面使用的類別別名，而param value裡定義的則是實際提供服務的Native類別名稱，剩餘其
+            他設定參數則是編譯所需的固定參數。在本篇範例裡，config-file設定區塊所代表的意義是
+            ：Web頁面可以使用NotificationService這個類別別名，來調用Android專案裡面的
+            com.clk.cordova.sample.NotificationService這個Native類別。
+        -->
+        <config-file target="res/xml/config.xml" parent="/*">
+            <!--
+            讓 Cordova 認識這個 Plugin，value 是對應到的 java 程式
+        -->
+            <feature name="SharingFrom">
+                <param name="android-package" value="com.kcchen.sharingfrom.SharingFrom"/>
+            </feature>
+        </config-file>
+        <!--<preference name="./application/activity[@android:name='MainActivity']/@android:launchMode" value="singleInstance" />-->
+        <config-file mode="replace" parent="./application/activity/[@android:name='MainActivity']" target="AndroidManifest.xml">
+            <intent-filter android:label="@string/launcher_name">
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="image/jpeg" />
+                <data android:mimeType="image/bmp" />
+                <data android:mimeType="image/svg+xml" />
+                <data android:mimeType="image/gif" />
+                <data android:mimeType="image/png" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+            <!--test for webchat-->
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.VIEW"/>-->
+            <!--<action android:name="android.intent.action.SENDTO"/>-->
+            <!--<data android:scheme="mailto"/>-->
+            <!--<category android:name="android.intent.category.DEFAULT"/>-->
+            <!--<category android:name="android.intent.category.BROWSABLE"/>-->
+            <!--</intent-filter>-->
+            <!--<intent-filter android:label="@string/app_name">-->
+            <!--<action android:name="android.intent.action.SEND"/>-->
+            <!--<data android:mimeType="*/*"/>-->
+            <!--<category android:name="android.intent.category.DEFAULT"/>-->
+            <!--</intent-filter>-->
+            <!--<intent-filter android:label="@string/app_name">-->
+            <!--<action android:name="android.intent.action.SEND_MULTIPLE"/>-->
+            <!--<data android:mimeType="*/*"/>-->
+            <!--<category android:name="android.intent.category.DEFAULT"/>-->
+            <!--</intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.WebPage" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.MultipleImages" />
+                <data android:mimeType="image/jpeg" />
+                <data android:mimeType="image/bmp" />
+                <data android:mimeType="image/svg+xml" />
+                <data android:mimeType="image/gif" />
+                <data android:mimeType="image/png" />
+                <!--add for sending mail-->
+                <data android:mimeType="message/rfc822" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.SinglePDF" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+        </config-file>
+        <!-- source
+            當Cordova讀取到Android platform的設定區塊的source-file設定區塊時，會將每一個
+            source-file設定區塊裡src所指定的檔案，複製到Android專案裡target-dir所指定資料
+            夾，用以進行後續的編譯工作。在本篇的範例裡，source-file設定區塊所代表的意義是：將
+            Plugin裡src/android/NotificationService.java的這個檔案，複製到Android專案
+            的src/com/clk/cordova/sample/資料夾裡面來進行編譯。
+        -->
+        <source-file src="src/android/SharingFrom.java" target-dir="src/com/kcchen/sharingfrom" />
+        <source-file src="src/android/PathUtil.java" target-dir="src/com/kcchen/sharingfrom" />
+    </platform>
+    <!-- ios -->
+    <platform name="ios">
+        <!-- https://github.com/dpa99c/cordova-custom-config-example/blob/master/config.xml -->
+        <!--<hook src="hooks/xcode_compile.js" type="before_compile" />-->
+        <hook src="hooks/restore.js" type="before_plugin_uninstall" />
+        <!-- <hook src="hooks/patches.js" type="before_plugin_install" /> -->
+        <hook src="hooks/modify_xcodeproj.js" type="after_plugin_install" />
+        <hook src="hooks/add_app_extension.js" type="after_plugin_install" />
+        <!-- <hook src="hooks/add_app_extension.js" type="after_prepare" /> -->
+        <!-- <hook src="hooks/patches.js" type="after_platform_add" /> -->
+        <hook src="hooks/add_app_extension.js" type="after_platform_add" />
+        <hook src="hooks/remove_lock.js" type="before_plugin_install" />
+        <!--<hook src="hooks/before_platform_rm.js" type="before_platform_rm" />-->
+        <config-file parent="com.apple.security.application-groups" target="*-Debug.plist">
+            <array>
+                <string>group.com.kcchen.penpal.SharingFrom</string>
+            </array>
+        </config-file>
+        <config-file parent="com.apple.security.application-groups" target="*-Release.plist">
+            <array>
+                <string>group.com.kcchen.penpal.SharingFrom</string>
+            </array>
+        </config-file>
+        <!--
+            讓 Cordova 認識這個 Plugin，value 是對應到的 java 程式
+        -->
+        <config-file parent="/*" target="config.xml">
+            <feature name="SharingFrom">
+                <param name="ios-package" value="SharingFrom" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <source-file src="src/ios/SharingFrom.swift" />
+        <source-file src="src/ios/ShareViewController.swift" />
+        <resource-file src="src/ios/MainInterface.storyboard" />
+        <resource-file src="src/ios/SharingFrom-Info.plist" />
+        <framework src="UIKit.framework" />
+        <framework src="Social.framework" />
+        <framework src="MobileCoreServices.framework" />
+        <config-file target="*-Info.plist" parent="UIFileSharingEnabled">
+            <true/>
+        </config-file>
+        <config-file target="*-Info.plist" parent="CFBundleDocumentTypes">
+            <key>CFBundleDocumentTypes</key>
+            <array>
+                <dict>
+                    <key>CFBundleTypeIconFiles</key>
+                    <array>
+                        <string>icon-small</string>
+                    </array>
+                    <key>CFBundleTypeName</key>
+                    <string>${PRODUCT_NAME}</string>
+                    <key>LSItemContentTypes</key>
+                    <array>
+                        <string>public.png</string>
+                        <string>public.jpeg</string>
+                        <string>com.adobe.pdf</string>
+                        <string>com.compuserve.gif</string>
+                        <string>public.html</string>
+                        <string>com.microsoft.bmp</string>
+                        <string>public.image</string>
+                    </array>
+                </dict>
+            </array>
+        </config-file>
+        <!--<config-file mode="replace" parent="UTExportedTypeDeclarations" target="*-Info.plist" /><config-file mode="replace" parent="UTImportedTypeDeclarations" target="*-Info.plist" /><config-file mode="replace" parent="CFBundleURLTypes" target="*-Info.plist" />-->
+    </platform>
+</plugin>
